@@ -1,7 +1,13 @@
 {
     "name": "Go Link Plugin",
-    "description": "Use go/ link to any url.",
-    "version": "1.0",
+    "description": "Use go{space} link to any url. Built for xGoogler. Map stored in your google account.",
+    "version": "1.0.0",
+    "icons": {
+      "16": "icon.png",
+      "32": "icon.png",
+      "48": "icon.png",
+      "128": "icon.png"
+    },
     "manifest_version": 3,
     "action": {
       "default_popup": "main.html",
