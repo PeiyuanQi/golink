@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Go Link Extension</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="p-3">
+    <div class="mb-3">
+      <label for="url-input" class="form-label">Go Link text:</label>
+      <div class="input-group">
+        <span class="input-group-text">go </span>
+        <input type="text" class="form-control" id="url-input" placeholder="Enter or pre-filled alias" />
+      </div>
+    </div>
+    <div class="mb-3">
+      <label for="current-url" class="form-label">Current Tab URL:</label>
+      <p id="current-url" class="form-text">Loading...</p>
+    </div>
+    <div class="d-flex gap-2">
+      <button id="save-button" class="btn btn-primary flex-fill">Save</button>
+      <button id="delete-button" class="btn btn-danger flex-fill d-none">Delete</button>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>

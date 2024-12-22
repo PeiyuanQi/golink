@@ -1,0 +1,18 @@
+body {
+  font-family: Arial, sans-serif;
+  width: 320px; /* Default width for the popup */
+  max-width: 100%; /* Ensures it doesn't overflow on smaller screens */
+  margin: 0 auto; /* Centers the content */
+}
+
+#current-url {
+  word-break: break-word; /* Ensures long URLs wrap */
+}
+
+input {
+  font-size: 12px;
+}
+
+button {
+  font-size: 12px;
+}
