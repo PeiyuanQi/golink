@@ -54,8 +54,8 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
     const suggestions = Object.keys(golink2Url)
         .filter((storedKey) => storedKey.startsWith(text))
         .map((storedKey) => ({
-        content: `golink:${storedKey}`,
-        description: `Redirect to ${golink2Url[storedKey]}`
+            content: `${storedKey}`,
+            description: `Redirect to ${storedKey}`
         }));
 
     suggest(suggestions);
