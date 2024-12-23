@@ -1,6 +1,6 @@
 {
     "name": "Go Link Plugin",
-    "description": "Use go{space} link to any url. Built for xGoogler. Map stored in your google account.",
+    "description": "Use go{space} link to any url. Built by xGoogler. Map stored in your google account.",
     "version": "1.0.0",
     "icons": {
       "16": "icon.png",
@@ -17,7 +17,6 @@
       "tabs",
       "storage"
     ],
-    "host_permissions": ["<all_urls>"],
     "omnibox": {
       "keyword": "go"
     },
