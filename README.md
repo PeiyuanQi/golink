@@ -1,6 +1,6 @@
 # GoLink Chrome Plugin
 
-The plugin allows you to save a go/{customized link} for any link you open in the current tab.
+The plugin allows you to save a `go {customized link}` for any link you open in the current tab.
 
 ```
 - main.html: main popup page when extension is clicked.

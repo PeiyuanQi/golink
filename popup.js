@@ -11,7 +11,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const currentUrlElement = document.getElementById("current-url");
   const saveButton = document.getElementById("save-button");
   const deleteButton = document.getElementById("delete-button");
-
+  const noticeElement = document.getElementById("ops-notice");
+  const countdownTimerElement = document.getElementById("countdown-timer");
+  
   // Fetch the current tab URL
   chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     if (tabs.length === 0) {
@@ -61,6 +63,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         chrome.storage.sync.set({ ["golink2Url"]: golink2Url, ["url2Golink"]: url2Golink }, () => {
           console.debug("glink %s -> %s saved in golink2Url and url2Golink successfully!", golinkValue, currentTabUrl);
           deleteButton.classList.remove("d-none"); // Show the delete button
+          // Show ui notice of success save
+          noticeElement.classList.remove("d-none");
+          // Close ui with timer of countdown
+          let countdown = 3;
+          countdownTimerElement.textContent = countdown;
+
+          const countdownInterval = setInterval(() => {
+            countdown -= 1;
+            countdownTimerElement.textContent = countdown;
+
+            if (countdown <= 0) {
+              clearInterval(countdownInterval);
+              window.close(); // Close the popup
+            }
+          }, 1000);
         });
       });
     });

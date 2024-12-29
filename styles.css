@@ -16,3 +16,9 @@ input {
 button {
   font-size: 12px;
 }
+
+#ops-notice {
+  font-size: 11px; /* Adjust the font size */
+  text-align: left; /* Center align the text */
+  margin-top: 5px; /* Add some spacing above */
+}
