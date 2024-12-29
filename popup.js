@@ -63,21 +63,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         chrome.storage.sync.set({ ["golink2Url"]: golink2Url, ["url2Golink"]: url2Golink }, () => {
           console.debug("glink %s -> %s saved in golink2Url and url2Golink successfully!", golinkValue, currentTabUrl);
           deleteButton.classList.remove("d-none"); // Show the delete button
-          // Show ui notice of success save
-          noticeElement.classList.remove("d-none");
-          // Close ui with timer of countdown
-          let countdown = 3;
-          countdownTimerElement.textContent = countdown;
-
-          const countdownInterval = setInterval(() => {
-            countdown -= 1;
-            countdownTimerElement.textContent = countdown;
-
-            if (countdown <= 0) {
-              clearInterval(countdownInterval);
-              window.close(); // Close the popup
-            }
-          }, 1000);
+          // Show success notice for saving
+          showNoticeWithCountdown(
+            noticeElement,
+            countdownTimerElement,
+            "Link saved successfully! Closing in 3 seconds."
+          );
         });
       });
     });
@@ -132,9 +123,37 @@ document.addEventListener("DOMContentLoaded", async () => {
           } else {
             console.warn("Not all keys were found for deletion.");
           }
+
+          // Show success notice for deleting
+          showNoticeWithCountdown(
+            noticeElement,
+            countdownTimerElement,
+            "Link deleted successfully! Closing in 3 seconds."
+          );
         });
       });
     });
   });
 });
   
+
+function showNoticeWithCountdown(noticeElement, countdownTimerElement, message, countdownSeconds = 3) {
+  // Show the notice with the provided message
+  noticeElement.textContent = message;
+  noticeElement.classList.remove("d-none");
+
+  // Initialize the countdown
+  let countdown = countdownSeconds;
+  countdownTimerElement.textContent = countdown;
+
+  // Start the countdown timer
+  const countdownInterval = setInterval(() => {
+    countdown -= 1;
+    countdownTimerElement.textContent = countdown;
+
+    if (countdown <= 0) {
+      clearInterval(countdownInterval);
+      window.close(); // Close the popup
+    }
+  }, 1000);
+}
