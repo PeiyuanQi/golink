@@ -36,11 +36,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Save the input value for the current tab URL in the "golink2Url" map
-  saveButton.addEventListener("click", () => {
+  // Function to save the link
+  function saveLink() {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (tabs.length === 0) {
-        console.log("No active tab to save.");
+        console.error("No active tab to save.");
         return;
       }
 
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const golinkValue = inputElement.value;
 
       if (golinkValue.trim() === "") {
-        console.log("Input box cannot be empty.");
+        console.error("Input box cannot be empty.");
         return;
       }
 
@@ -66,12 +66,22 @@ document.addEventListener("DOMContentLoaded", async () => {
           // Show success notice for saving
           showNoticeWithCountdown(
             noticeElement,
-            countdownTimerElement,
-            "Link saved successfully! Closing in 3 seconds."
+            countdownTimerElement
           );
         });
       });
     });
+  }
+
+  // Save the input value for the current tab URL in the "golink2Url" map
+  saveButton.addEventListener("click", saveLink);
+
+  // Trigger save when Enter is pressed in the input box
+  inputElement.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent default behavior
+      saveLink();
+    }
   });
 
   // Delete the alias for the current tab URL
@@ -127,8 +137,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           // Show success notice for deleting
           showNoticeWithCountdown(
             noticeElement,
-            countdownTimerElement,
-            "Link deleted successfully! Closing in 3 seconds."
+            countdownTimerElement
           );
         });
       });
@@ -137,9 +146,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
   
 
-function showNoticeWithCountdown(noticeElement, countdownTimerElement, message, countdownSeconds = 3) {
+function showNoticeWithCountdown(noticeElement, countdownTimerElement, countdownSeconds = 3) {
   // Show the notice with the provided message
-  noticeElement.textContent = message;
   noticeElement.classList.remove("d-none");
 
   // Initialize the countdown

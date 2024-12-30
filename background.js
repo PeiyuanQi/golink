@@ -1,7 +1,7 @@
 console.debug("Go Link Plugin: Service worker loaded");
 
 chrome.omnibox.onInputEntered.addListener((text, disposition) => {
-    
+
     console.debug("Omnibox input entered:", text);
     console.debug("Disposition:", disposition);
 
@@ -47,10 +47,11 @@ chrome.omnibox.onInputEntered.addListener((text, disposition) => {
     });
 });
 
-
+// Input suggestions in omnibox
 chrome.omnibox.onInputChanged.addListener((text, suggest) => {
     chrome.storage.sync.get(["golink2Url"], (result) => {
     const golink2Url = result.golink2Url || {};
+
     const suggestions = Object.keys(golink2Url)
         .filter((storedKey) => storedKey.startsWith(text))
         .map((storedKey) => ({
@@ -60,4 +61,4 @@ chrome.omnibox.onInputChanged.addListener((text, suggest) => {
 
     suggest(suggestions);
     });
-  });
+});
