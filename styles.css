@@ -22,3 +22,57 @@ button {
   text-align: left; /* Center align the text */
   margin-top: 5px; /* Add some spacing above */
 }
+
+/* Bottom controls styles */
+.bottom-controls {
+  border-top: 1px solid #dee2e6;
+  padding-top: 10px;
+}
+
+#settings-button {
+  color: #6c757d;
+  transition: color 0.2s;
+}
+
+#settings-button:hover {
+  color: #0d6efd;
+}
+
+/* Modal styles */
+#linksModal .modal-dialog {
+  max-width: 500px;
+}
+
+#linksModal .list-group-item {
+  padding: 0.75rem 1rem;
+}
+
+#linksModal .list-group-item:hover {
+  background-color: #f8f9fa;
+}
+
+#linksModal .btn-outline-danger {
+  padding: 0.25rem 0.5rem;
+}
+
+#linksModal .text-truncate {
+  max-width: 300px;
+}
+
+/* Styles for the Go Links list */
+.list-group-item .d-flex.flex-column {
+  /* Allow the link info column to shrink and prevent pushing the button out */
+  min-width: 0; /* Important for text-truncate in flex items */
+  flex-grow: 1;
+  margin-right: 0.5rem; /* Add some space between text and button */
+}
+
+.list-group-item .text-truncate a {
+  /* Ensure the link inherits text color and doesn't stand out too much */
+  color: inherit;
+  text-decoration: none; /* Optional: remove underline */
+}
+
+.list-group-item .text-truncate a:hover {
+  text-decoration: underline; /* Add underline on hover for clarity */
+}

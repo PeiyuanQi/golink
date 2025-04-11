@@ -13,8 +13,61 @@ document.addEventListener("DOMContentLoaded", async () => {
   const deleteButton = document.getElementById("delete-button");
   const noticeElement = document.getElementById("ops-notice");
   const countdownTimerElement = document.getElementById("countdown-timer");
+  const settingsButton = document.getElementById('settings-button');
+  const linksList = document.getElementById('links-list');
+  const linksListContainer = linksList.querySelector('.list-group');
+  const searchInput = document.getElementById('search-input');
   
-  // Fetch the current tab URL
+  let countdownIntervalId = null; // Variable to hold the interval ID
+  let currentTabUrl = null; // Variable to store the current tab URL
+  let allGoLinks = {}; // Store all links fetched from storage
+
+  function showNoticeWithCountdown(countdownSeconds = 3) {
+    // Clear any existing countdown interval first
+    if (countdownIntervalId) {
+      clearInterval(countdownIntervalId);
+      countdownIntervalId = null;
+    }
+
+    // Show the notice with the provided message
+    noticeElement.classList.remove("d-none");
+
+    // Initialize the countdown
+    let countdown = countdownSeconds;
+    countdownTimerElement.textContent = countdown;
+
+    // Start the countdown timer
+    countdownIntervalId = setInterval(() => {
+      countdown -= 1;
+      countdownTimerElement.textContent = countdown;
+
+      if (countdown <= 0) {
+        clearInterval(countdownIntervalId);
+        countdownIntervalId = null; // Clear the ID
+        window.close(); // Close the popup
+      }
+    }, 1000);
+  }
+
+  // Function to clear the countdown and hide the notice
+  function clearAutoCloseCountdown() {
+    if (countdownIntervalId) {
+      clearInterval(countdownIntervalId);
+      countdownIntervalId = null;
+      noticeElement.classList.add("d-none"); // Hide the notice as well
+      console.debug("Auto-close countdown cancelled by user interaction.");
+    }
+  }
+
+  // Add listeners to interactive elements to cancel the countdown
+  inputElement.addEventListener('focus', clearAutoCloseCountdown);
+  inputElement.addEventListener('keydown', clearAutoCloseCountdown);
+  settingsButton.addEventListener('click', clearAutoCloseCountdown, true); // Use capture for settings button
+  linksListContainer.addEventListener('click', clearAutoCloseCountdown, true); // Catch clicks within the list
+  searchInput.addEventListener('input', clearAutoCloseCountdown); // Cancel on search input
+  searchInput.addEventListener('focus', clearAutoCloseCountdown); // Cancel on search focus
+
+  // Fetch the current tab URL and check for existing link
   chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
     if (tabs.length === 0) {
       currentUrlElement.textContent = "No active tab found.";
@@ -22,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const currentTab = tabs[0];
-    const currentTabUrl = currentTab.url;
+    currentTabUrl = currentTab.url; // Store the URL in the accessible variable
     currentUrlElement.textContent = currentTabUrl;
 
     // Retrieve the "url2Golink" map from chrome.storage.sync
@@ -59,15 +112,16 @@ document.addEventListener("DOMContentLoaded", async () => {
         golink2Url[golinkValue] = currentTabUrl;
         url2Golink[currentTabUrl] = golinkValue;
 
-        // Save the updated map back to storage
-        chrome.storage.sync.set({ ["golink2Url"]: golink2Url, ["url2Golink"]: url2Golink }, () => {
-          console.debug("glink %s -> %s saved in golink2Url and url2Golink successfully!", golinkValue, currentTabUrl);
-          deleteButton.classList.remove("d-none"); // Show the delete button
-          // Show success notice for saving
-          showNoticeWithCountdown(
-            noticeElement,
-            countdownTimerElement
-          );
+        // Save both dictionaries
+        chrome.storage.sync.set({ golink2Url, url2Golink }, () => {
+          console.debug("Mappings updated: go %s -> %s", golinkValue, currentTabUrl);
+          deleteButton.classList.remove("d-none");
+          showNoticeWithCountdown();
+
+          // Refresh the list if it's currently visible
+          if (!linksList.classList.contains('d-none')) {
+            populateLinksList();
+          }
         });
       });
     });
@@ -123,7 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
           console.debug("Maps updated:", { ["golink2Url"]: golink2Url, ["url2Golink"]: url2Golink });
 
           // If both keys were deleted, hide the button
-          if (golink2Url && url2Golink) {
+          if (golink2UrlDeleted && url2GolinkDeleted) {
             if (deleteButton) {
               deleteButton.classList.add("d-none");
               console.debug("Delete button hidden.");
@@ -131,37 +185,162 @@ document.addEventListener("DOMContentLoaded", async () => {
               console.warn(`Delete button not found.`);
             }
           } else {
-            console.warn("Not all keys were found for deletion.");
+            console.warn("Not all expected keys were found/deleted for the current URL.");
           }
 
+          deleteButton.classList.add("d-none"); // Hide delete button after successful deletion
+          console.debug("Delete button hidden after successful delete.");
+
           // Show success notice for deleting
-          showNoticeWithCountdown(
-            noticeElement,
-            countdownTimerElement
-          );
+          showNoticeWithCountdown();
+
+          // Refresh the list if it's currently visible
+          if (!linksList.classList.contains('d-none')) {
+            populateLinksList();
+          }
         });
       });
     });
   });
-});
-  
 
-function showNoticeWithCountdown(noticeElement, countdownTimerElement, countdownSeconds = 3) {
-  // Show the notice with the provided message
-  noticeElement.classList.remove("d-none");
+  // Function to render the links list based on provided data
+  function renderLinksList(linksToRender) {
+    linksListContainer.innerHTML = ''; // Clear existing content
 
-  // Initialize the countdown
-  let countdown = countdownSeconds;
-  countdownTimerElement.textContent = countdown;
+    if (Object.keys(linksToRender).length === 0) {
+      const emptyMessage = document.createElement('div');
+      emptyMessage.className = 'list-group-item text-center text-muted py-3';
+      // Adjust message based on whether a search is active
+      emptyMessage.textContent = searchInput.value ? 'No matching go links found' : 'No go links saved yet';
+      linksListContainer.appendChild(emptyMessage);
+    } else {
+      Object.entries(linksToRender).forEach(([golink, url]) => {
+        const listItem = document.createElement('div');
+        listItem.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
 
-  // Start the countdown timer
-  const countdownInterval = setInterval(() => {
-    countdown -= 1;
-    countdownTimerElement.textContent = countdown;
+        const linkInfo = document.createElement('div');
+        linkInfo.className = 'd-flex flex-column';
+        linkInfo.innerHTML = `
+          <span class="fw-bold">go ${golink}</span>
+          <small class="text-muted text-truncate">
+            <a href="${url}" target="_blank" title="${url}">${url}</a>
+          </small>
+        `;
 
-    if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      window.close(); // Close the popup
+        const deleteBtnInList = document.createElement('button');
+        deleteBtnInList.className = 'btn btn-sm btn-outline-danger';
+        deleteBtnInList.innerHTML = '<i class="bi bi-x-lg"></i>';
+        deleteBtnInList.onclick = () => deleteLinkFromList(golink, url);
+
+        listItem.appendChild(linkInfo);
+        listItem.appendChild(deleteBtnInList);
+        linksListContainer.appendChild(listItem);
+      });
     }
-  }, 1000);
-}
+  }
+
+  // Function to populate the links list content (fetches data and stores it)
+  function populateLinksList() {
+    chrome.storage.sync.get(["golink2Url"], (result) => {
+      console.log('Populating list. Retrieved golink2Url:', result.golink2Url);
+      allGoLinks = result.golink2Url || {}; // Store fetched links
+      filterAndRenderLinks(); // Initial render (potentially filtered)
+    });
+  }
+
+  // Function to filter links based on search input and render
+  function filterAndRenderLinks() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    if (!searchTerm) {
+      renderLinksList(allGoLinks); // Render all if search is empty
+      return;
+    }
+
+    const filteredLinks = Object.entries(allGoLinks)
+      .filter(([golink, url]) => golink.toLowerCase().includes(searchTerm))
+      .reduce((obj, [key, value]) => {
+        obj[key] = value;
+        return obj;
+      }, {});
+
+    renderLinksList(filteredLinks);
+  }
+
+  // Add event listener for the search input
+  searchInput.addEventListener('input', filterAndRenderLinks);
+
+  // Function to delete a link from the list view itself
+  function deleteLinkFromList(golink, url) {
+    chrome.storage.sync.get(["golink2Url", "url2Golink"], (result) => {
+      let golink2Url = result.golink2Url || {};
+      let url2Golink = result.url2Golink || {};
+      let changed = false;
+
+      // 1. Delete the specific golink from golink2Url
+      if (golink in golink2Url) {
+        // Optional: Verify the URL matches, though the list provides it
+        // if (golink2Url[golink] === url) { 
+        delete golink2Url[golink];
+        changed = true;
+        // } else {
+        //   console.warn(`Inconsistency detected: golink '${golink}' does not map to URL '${url}' in storage.`);
+        // }
+      } else {
+        console.warn(`Go link '${golink}' not found in golink2Url during list delete.`);
+      }
+
+      // 2. Only delete from url2Golink if it points back to the deleted golink
+      if (url in url2Golink && url2Golink[url] === golink) {
+        delete url2Golink[url];
+        changed = true; // Ensure we save even if only url2Golink changed (unlikely here)
+      }
+
+      // Only save and refresh if a change was actually made
+      if (changed) {
+        // Save the updated maps back to storage
+        chrome.storage.sync.set({ golink2Url, url2Golink }, () => { // Save updated objects
+          if (chrome.runtime.lastError) {
+            console.error("Error saving updated maps:", chrome.runtime.lastError);
+            // Optionally, revert local changes or handle error
+            return;
+          }
+
+          console.debug("Maps updated after list deletion:", { golink2Url, url2Golink });
+
+          // Re-fetch and render the list to ensure it's updated
+          populateLinksList();
+
+          // 3. Refined check: Hide main delete button ONLY if NO alias remains for the current tab URL
+          chrome.storage.sync.get(["url2Golink"], (updatedResult) => { // Re-get latest url2Golink
+             const latestUrl2Golink = updatedResult.url2Golink || {};
+             if (!latestUrl2Golink[currentTabUrl]) { // Check if *any* mapping exists for current URL
+                deleteButton.classList.add("d-none");
+                console.debug("Main delete button hidden as no alias remains for the current tab URL after list deletion.");
+             } else {
+                // Keep it visible if another alias still points to the current URL
+                deleteButton.classList.remove("d-none"); 
+                console.debug("Main delete button remains visible as another alias exists for the current tab URL.");
+             }
+          });
+        });
+      } else {
+         console.log("No changes made during list delete operation for", golink, url);
+      }
+    });
+  }
+
+  // Function to toggle visibility and populate the links list
+  function showLinksList() {
+    // Toggle visibility first
+    linksList.classList.toggle('d-none');
+
+    // If the list is now visible, populate it
+    if (!linksList.classList.contains('d-none')) {
+      populateLinksList();
+    }
+  }
+
+  // Add click handler for settings button to toggle/show the list
+  settingsButton.addEventListener('click', showLinksList);
+});
+

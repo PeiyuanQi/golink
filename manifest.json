@@ -1,7 +1,7 @@
 {
     "name": "Go Link Plugin",
-    "description": "Use go{space} link to any url. Built by xGoogler. Map stored in your google account.",
-    "version": "1.0.0",
+    "description": "Use go{space} link to any url. Link mappings are stored in your google account.",
+    "version": "1.0.2",
     "icons": {
       "16": "icon.png",
       "32": "icon.png",
@@ -22,5 +22,15 @@
     },
     "background": {
       "service_worker": "background.js"
-    }
+    },
+    "web_accessible_resources": [{
+      "resources": [
+        "vendor/bootstrap/bootstrap.min.css",
+        "vendor/bootstrap/bootstrap-icons.min.css",
+        "vendor/bootstrap/bootstrap.bundle.min.js",
+        "vendor/bootstrap/fonts/bootstrap-icons.woff",
+        "vendor/bootstrap/fonts/bootstrap-icons.woff2"
+      ],
+      "matches": ["<all_urls>"]
+    }]
   }

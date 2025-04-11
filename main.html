@@ -2,10 +2,8 @@
 <html>
   <head>
     <title>Go Link Extension</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-    />
+    <link href="vendor/bootstrap/bootstrap.min.css" rel="stylesheet" />
+    <link href="vendor/bootstrap/bootstrap-icons.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body class="p-3">
@@ -20,12 +18,31 @@
       <label for="current-url" class="form-label">Current Tab URL:</label>
       <p id="current-url" class="form-text">Loading...</p>
     </div>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 bottom-controls justify-content-between align-items-center mt-3">
+      <!-- Bottom controls -->
       <button id="save-button" class="btn btn-primary flex-fill">Save</button>
       <button id="delete-button" class="btn btn-danger flex-fill d-none">Delete</button>
+      <button id="settings-button" class="btn btn-link ms-2">
+        <i class="bi bi-gear-fill fs-4"></i>
+      </button>
     </div>
     <!-- Notice of success save -->
     <div id="ops-notice" class="mt-3 text-success d-none">Link updated successfully! Closing in <span id="countdown-timer">?</span> seconds.</div>
+    
+    <!-- Links List (hidden by default) -->
+    <div id="links-list" class="mt-3 d-none">
+      <h6 class="mb-2">Your Go Links</h6>
+      <!-- Add Search Box -->
+      <div class="mb-2">
+        <input type="search" id="search-input" class="form-control form-control-sm" placeholder="Search go links..." />
+      </div>
+      <!-- End Search Box -->
+      <div class="list-group" style="max-height: 200px; overflow-y: auto;">
+        <!-- Links will be populated here -->
+      </div>
+    </div>
+
+    <script src="vendor/bootstrap/bootstrap.bundle.min.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>
