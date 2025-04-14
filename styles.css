@@ -76,3 +76,14 @@ button {
 .list-group-item .text-truncate a:hover {
   text-decoration: underline; /* Add underline on hover for clarity */
 }
+
+/* Center SVG inside the list item delete button */
+.list-group-item .btn-sm.btn-outline-danger {
+  display: inline-flex; /* Make the button a flex container */
+  align-items: center;   /* Center items vertically */
+  justify-content: center; /* Center items horizontally */
+  /* Adjust padding if needed for visual balance with small icon */
+  /* padding: 0.2rem 0.4rem; */ 
+  /* line-height might affect vertical alignment */
+  /* line-height: 1; */
+}
